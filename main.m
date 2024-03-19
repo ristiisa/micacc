@@ -5,11 +5,17 @@ int main(int argc, char * argv[]) {
     @autoreleasepool {
         // Ensure there's an argument for the executable path
         if (argc < 2) {
-            printf("Usage: %s <path_to_executable>\n", argv[0]);
+            printf("Usage: %s <path_to_executable> [arguments...]\n\n", argv[0]);
             return 1;
         }
 
         NSString *executablePath = [NSString stringWithUTF8String:argv[1]];
+        NSMutableArray *argumentsArray = [NSMutableArray array];
+
+        // Start from 2 to skip the program name and executable path
+        for (int i = 2; i < argc; i++) {
+            [argumentsArray addObject:[NSString stringWithUTF8String:argv[i]]];
+        }
 
         // Check microphone permission status
         switch ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio]) {
@@ -38,10 +44,7 @@ int main(int argc, char * argv[]) {
         // Setup and launch the executable as a subprocess
         NSTask *task = [[NSTask alloc] init];
         [task setLaunchPath:executablePath];
-
-        // Setup environment, arguments, etc., as needed
-        // For example, to pass arguments to your subprocess, uncomment and modify the next line
-        // [task setArguments:@[@"arg1", @"arg2"]];
+        [task setArguments:argumentsArray];
 
         @try {
             [task launch];
